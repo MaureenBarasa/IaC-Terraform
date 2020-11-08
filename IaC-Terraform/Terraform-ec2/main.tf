@@ -1,15 +1,22 @@
-variable "AWS_ACCESS_KEY" {
-  default = "**************************"
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
 }
 
-variable "AWS_SECRET_KEY" {
-  default = "**************************"
+provider "aws" {
+  access_key = var.AWS_ACCESS_KEY
+  secret_key = var.AWS_SECRET_KEY
+  region = "eu-central-1"
 }
 
-variable "AWS_REGION" {
-  default = "eu-central-1"
+module "vpc" {
+  source  = "/Users/maureenbarasa/modules/services/vpc"
 }
 
-variable "key_name" {
-  default = "test-key"
+
+module "ecs-ec2" {
+  source  = "/Users/maureenbarasa/modules/services/ecs-ec2"
 }
