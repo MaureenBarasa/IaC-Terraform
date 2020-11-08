@@ -84,7 +84,7 @@ resource "aws_autoscaling_group" "test-ecs-asg-group" {
 #The launch Configuration
 resource "aws_launch_configuration" "container-instance" {
     name = "test-ecs"
-    image_id = "ami-07083d4e949ba5cf9"
+    image_id = "ami-07083d4e949ba5cf9" #an ecs optimized ami
     instance_type = "t2.micro"
     key_name = "test-key"
     security_groups = [module.vpc.vpc_ecs_security_group_id]
