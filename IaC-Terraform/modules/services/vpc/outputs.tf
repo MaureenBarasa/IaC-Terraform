@@ -1,9 +1,9 @@
-output "vpc_public_subnet1" {
+output "vpc_public_subnet1_id" {
   description = "IDs of the VPC's public subnets"
   value       = "${aws_subnet.test-public-subnet-1.id}"
 }
 
-output "vpc_public_subnet2" {
+output "vpc_public_subnet2_id" {
   description = "IDs of the VPC's public subnets"
   value       = "${aws_subnet.test-public-subnet-2.id}"
 }
