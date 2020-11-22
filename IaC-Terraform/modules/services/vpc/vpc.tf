@@ -105,13 +105,13 @@ resource "aws_internet_gateway" "test-igw" {
 }
 
 resource "aws_nat_gateway" "test-nat-gw1" {
-   allocation_id = "eipalloc-0366e0ada668ed06c"
+   allocation_id = "eipalloc-099f0604ed5230df8"
    subnet_id = "${aws_subnet.test-public-subnet-1.id}"
    depends_on = ["aws_internet_gateway.test-igw"]
 }
 
 resource "aws_nat_gateway" "test-nat-gw2" {
-   allocation_id = "eipalloc-0fb4c214424169528"
+   allocation_id = "eipalloc-0957dc41fb157bbc2"
    subnet_id = "${aws_subnet.test-public-subnet-2.id}"
    depends_on = ["aws_internet_gateway.test-igw"]
 }
@@ -198,7 +198,7 @@ resource "aws_route_table_association" "test-private2-1b" {
    route_table_id = "${aws_route_table.test-private2-rtb.id}"
 }
 
-#The Security Group
+#The Security Groups
 resource "aws_security_group" "test-ec2-sg" {
   name        = "test-ec2-sg"
   description = "Allow TLS inbound traffic"
@@ -220,6 +220,76 @@ resource "aws_security_group" "test-ec2-sg" {
   }
   tags = {
      Name = "test-ec2-sg"
+     createdBy = "MaureenBarasa"
+     Owner = "DevSecOps"
+     Project = "test-terraform"
+     environment = "test"
+   }
+}
+resource "aws_security_group" "test-ecs-ec2-sg" {
+  name        = "test-ecs-ec2-sg"
+  description = "ecs cluster security group"
+  vpc_id = "${aws_vpc.test-vpc.id}"
+
+  ingress {
+    description = "ssh"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["42.54.23.12/32"]
+  }
+
+  ingress {
+    description = "ssh"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["42.54.23.12/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+     Name = "test-ecs-ec2-sg"
+     createdBy = "MaureenBarasa"
+     Owner = "DevSecOps"
+     Project = "test-terraform"
+     environment = "test"
+   }
+}
+resource "aws_security_group" "test-alb-sg" {
+  name        = "test-alb-sg"
+  description = "alb security group"
+  vpc_id = "${aws_vpc.test-vpc.id}"
+
+  ingress {
+    description = "http"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["42.54.23.12/32"]
+  }
+
+  ingress {
+    description = "https"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["42.54.23.12/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+     Name = "test-alb-sg"
      createdBy = "MaureenBarasa"
      Owner = "DevSecOps"
      Project = "test-terraform"
