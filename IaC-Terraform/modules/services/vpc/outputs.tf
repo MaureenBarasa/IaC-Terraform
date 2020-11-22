@@ -28,7 +28,7 @@ output "vpc_ecs_security_group_id" {
   value       = "${aws_security_group.test-ecs-ec2-sg.id}"
 }
 
-output "vpc_ecs_security_group_id" {
+output "vpc_alb_security_group_id" {
   description = "ID of the ALB security groups"
   value       = "${aws_security_group.test-alb-sg.id}"
 }
