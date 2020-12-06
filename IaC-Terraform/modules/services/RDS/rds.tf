@@ -3,7 +3,7 @@ module "vpc" {
 }
 resource "aws_db_subnet_group" "test-sb-grp" {
   name       = "test-sb-grp"
-  subnet_ids = [module.vpc.vpc_public_subnet1_id, module.vpc.vpc_public_subnet2_id]
+  subnet_ids = [module.vpc.vpc_private_subnet1_id,module.vpc.vpc_private_subnet2_id]
 
   tags = {
 	Name = "test-sb-grp"
