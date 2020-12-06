@@ -64,12 +64,15 @@ resource "aws_db_instance" "testrds" {
   instance_class       = "db.t3.micro"
   name                 = "testrds"
   username             = "admin"
-  password             = "******"
+  password             = "foobarbaz"
   db_subnet_group_name = "${aws_db_subnet_group.test-sb-grp.id}"
   parameter_group_name = "${aws_db_parameter_group.test-pr-grp.id}"
-  deletion_protection = "true"
+  deletion_protection = "false"
   port = "3306"
   vpc_security_group_ids = [aws_security_group.test-rds-sg.id]
+  skip_final_snapshot = "true"
+  storage_encrypted = "true"
+  final_snapshot_identifier = "DELETE-ME"
   tags = {
      Name = "testrds"
      createdBy = "MaureenBarasa"
