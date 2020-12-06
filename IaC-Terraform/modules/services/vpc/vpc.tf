@@ -103,15 +103,20 @@ resource "aws_internet_gateway" "test-igw" {
      environment = "test"
    }
 }
-
+resource "aws_eip" "one" {
+    vpc = true
+}
+resource "aws_eip" "two" {
+    vpc = true
+}
 resource "aws_nat_gateway" "test-nat-gw1" {
-   allocation_id = "eipalloc-099f0604ed5230df8"
+   allocation_id = "${aws_eip.one.id}"
    subnet_id = "${aws_subnet.test-public-subnet-1.id}"
    depends_on = ["aws_internet_gateway.test-igw"]
 }
 
 resource "aws_nat_gateway" "test-nat-gw2" {
-   allocation_id = "eipalloc-0957dc41fb157bbc2"
+   allocation_id = "${aws_eip.two.id}"
    subnet_id = "${aws_subnet.test-public-subnet-2.id}"
    depends_on = ["aws_internet_gateway.test-igw"]
 }
@@ -271,7 +276,7 @@ resource "aws_security_group" "test-alb-sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["42.54.23.12/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -279,7 +284,7 @@ resource "aws_security_group" "test-alb-sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["42.54.23.12/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -288,6 +293,7 @@ resource "aws_security_group" "test-alb-sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
   tags = {
      Name = "test-alb-sg"
      createdBy = "MaureenBarasa"
