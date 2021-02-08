@@ -16,21 +16,21 @@ module "VPC" {
   source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/VPC"
 }
 
-#module "Route53-HostedZone" {
-  #source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Route53-HostedZone"
-#}
+module "Route53-HostedZone" {
+  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Route53-HostedZone"
+}
 
-#module "SNS-Topic" {
-  #source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/SNS-Topic"
-#}
+module "SNS-Topic" {
+  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/SNS-Topic"
+}
 
-#module "Aurora-RDS" {
-  #source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Aurora-RDS"
-#}
+module "Aurora-RDS" {
+  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Aurora-RDS"
+}
 
-#module "S3-CloudFront" {
-  #source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/S3-CloudFront"
-#}
+module "S3-CloudFront" {
+  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/S3-CloudFront"
+}
 
 module "EKS-Cluster-Managed-Nodes" {
   source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/EKS-Cluster-Managed-Nodes"
