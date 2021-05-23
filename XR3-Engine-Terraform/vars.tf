@@ -6,10 +6,6 @@ variable "AWS_SECRET_KEY" {
   default =
 }
 
-variable "key_name" {
-  default = "Your AWS Acccount Key Name"
-}
-
 variable "AWS_REGION" {
   default = "Your AWS Account Region"
 }
