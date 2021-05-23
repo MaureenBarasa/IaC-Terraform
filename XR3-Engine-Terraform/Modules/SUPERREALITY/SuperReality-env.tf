@@ -206,7 +206,7 @@ resource "aws_security_group" "bastion-dev-ec2-sg" {
 resource "aws_instance" "SuperReality-dev-bastion" {
 	ami = "ami-04468e03c37242e1e"
 	instance_type = "t2.micro"
-    key_name = "gamegenXr3"
+    key_name = "var.key_name"
     subnet_id = "${module.VPC.VPC_public_subnet1_id}"
     vpc_security_group_ids = [aws_security_group.bastion-dev-ec2-sg.id]
     monitoring = "true"
