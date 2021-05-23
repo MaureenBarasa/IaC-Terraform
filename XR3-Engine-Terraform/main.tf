@@ -1,37 +1,45 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
+      version = ">= 3.20.0"
+    }
+
+    random = {
+      source  = "hashicorp/random"
+      version = "3.0.0"
+    }
+
+    null = {
+      source  = "hashicorp/null"
+      version = "3.0.0"
+    }
+
+    template = {
+      source  = "hashicorp/template"
+      version = "2.2.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "2.1.0"
+    }
+
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.0.1"
     }
   }
+
+  required_version = "~> 0.14"
 }
 
 provider "aws" {
   access_key = var.AWS_ACCESS_KEY
   secret_key = var.AWS_SECRET_KEY
-  region = "us-west-1"
+  region =  var.AWS_REGION
 }
 
-module "VPC" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/VPC"
+module "SuperReality-Env" {
+  source  = "./modules/SUPERREALITY"
 }
 
-module "Route53-HostedZone" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Route53-HostedZone"
-}
-
-module "SNS-Topic" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/SNS-Topic"
-}
-
-module "Aurora-RDS" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/Aurora-RDS"
-}
-
-module "S3-CloudFront" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/S3-CloudFront"
-}
-
-module "EKS-Cluster-Managed-Nodes" {
-  source  = "/Users/maureenbarasa/Desktop/XR3-Engine-Terraform/Modules/EKS-Cluster-Managed-Nodes"
-}
