@@ -1,6 +1,6 @@
 #Import values from VPC Module
 module "VPC" {
-  source  = "/Users/maureenbarasa/Desktop/SuperReality Terraform/modules/VPC"
+  source  = "./XR3-Engine-Terraform/Modules/VPC"
 }
 
 locals {
@@ -211,7 +211,7 @@ resource "aws_instance" "SuperReality-dev-bastion" {
     vpc_security_group_ids = [aws_security_group.bastion-dev-ec2-sg.id]
     monitoring = "true"
     iam_instance_profile = "${aws_iam_instance_profile.ssm_profile.id}"
-    user_data = "${file("/Users/maureenbarasa/Desktop/SuperReality Terraform/install-ssm.sh")}"
+    user_data = "${file("./XR3-Engine-Terraform/install-ssm.sh")}"
 	tags = {
 		    Name = "SuperReality-dev-bastion"
         createdBy = "MaureenBarasa"
