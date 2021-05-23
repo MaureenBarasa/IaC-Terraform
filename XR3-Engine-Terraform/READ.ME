@@ -1,0 +1,36 @@
+To make Changes to the Script
+
+1. Edit the resource
+2. Run Terraform init
+3. Run Terraform Apply 
+4. Enter Yes to Update your infrastructure
+
+Items to Customize to Use the Script
+
+On the vars.tf file
+input your AWS access Key
+Input your AWS secret Key
+Input the AWS Region you Intend to Provision your resources in
+Input your AWS ec2 keypair name
+Input the aurora db root and user password you intend to use
+
+on the main.tf file
+update the source path of your SuperReality-Env module based on the location of the file on your PC
+
+the bashscript install-ssm.sh purposes to install the ssm agent on our ec2 bastion instance t allow access to it via systems manager
+
+
+on the vpc.tf file
+We can modify the IP CIDR blocks for our VPC and Subnets
+We can also modify the resource tagging to our preffered names
+Also Modify the availabilty zones for the subnets based on preffered options
+
+on the SuperReality-env.tf
+modify the module vpc source based on the location of the file on your PC
+Change the eks cluster name and cloudfront origin id on locals based on preferences
+modify the route 53 hosted zone names and tagging based on your preferences
+modify the names and tagging for s3 and cloudfront resources based on preferences 
+modify the names and tagging of bastion instance and security group based on preferences
+modify the names and tagging of DB cluster and instance based on preferences
+on db provisioner module ensure that you modify the db instance id to your db instance identifier
+modify the names and tagging for EKS cluster and nodegroups based on preferences 
