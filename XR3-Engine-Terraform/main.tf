@@ -40,6 +40,6 @@ provider "aws" {
 }
 
 module "SuperReality-Env" {
-  source  = "./modules/SUPERREALITY"
+  source  = "./XR3-Engine-Terraform/Modules/SUPERREALITY"
 }
 
