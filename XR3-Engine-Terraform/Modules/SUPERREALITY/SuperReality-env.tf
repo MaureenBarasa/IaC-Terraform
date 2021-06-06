@@ -1,6 +1,6 @@
 #Import values from VPC Module
 module "VPC" {
-  source  = "./XR3-Engine-Terraform/Modules/VPC"
+  source  = "/Users/maureenbarasa/Desktop/SuperReality Terraform/Modules/VPC"
 }
 
 locals {
@@ -25,94 +25,6 @@ resource "aws_route53_zone" "dev" {
      Project = "SuperReality"
      Environment = "UAT"
    }
-}
-
-#S3 AND CLOUDFRONT
-#The origin Access Identity
-resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = "the SuperReality dev cloudfront origin access identity"
-}
-
-#The S3 Bucket
-resource "aws_s3_bucket" "SuperReality" {
-  bucket = "dev-superreality"
-  acl    = "private"
-  tags = {
-     Name = "dev-superreality"
-     createdBy = "MaureenBarasa"
-     Project = "SuperReality"
-     Environment = "UAT"
-   }
-}
-
-#The S3 Bucket Policy
-resource "aws_s3_bucket_policy" "SuperReality-bucketpolicy" {
-  bucket = "${aws_s3_bucket.SuperReality.id}"
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "MYBUCKETPOLICY",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-          "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_origin_access_identity.origin_access_identity.id}"
-        },  
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::dev-superreality/*"
-    }
-  ]
-}
-POLICY
-}
-
-locals {
-  s3_origin_id = "SuperReality-devs3origin"
-}
-
-#The Cloudfront Distribution
-resource "aws_cloudfront_distribution" "SuperReality-dev-cf" {
-  origin {
-    domain_name = "${aws_s3_bucket.SuperReality.bucket_regional_domain_name}"
-    origin_id   = "${local.s3_origin_id}"
-
-    s3_origin_config {
-      origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path}"
-    }
-  }
-
-  enabled             = true
-  is_ipv6_enabled     = true
-
-  default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "${local.s3_origin_id}"
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-    compress = true
-    viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
 }
 
 #SNS TOPIC
@@ -204,14 +116,14 @@ resource "aws_security_group" "bastion-dev-ec2-sg" {
 
 #ec2 Instance
 resource "aws_instance" "SuperReality-dev-bastion" {
-	ami = "ami-04468e03c37242e1e"
+	ami = "ami-063d4ab14480ac177"
 	instance_type = "t2.micro"
-    key_name = "var.key_name"
+    key_name = "maureenaws"
     subnet_id = "${module.VPC.VPC_public_subnet1_id}"
     vpc_security_group_ids = [aws_security_group.bastion-dev-ec2-sg.id]
     monitoring = "true"
     iam_instance_profile = "${aws_iam_instance_profile.ssm_profile.id}"
-    user_data = "${file("./XR3-Engine-Terraform/install-ssm.sh")}"
+    user_data = "${file("/Users/maureenbarasa/Desktop/SuperReality Terraform/install-ssm.sh")}"
 	tags = {
 		    Name = "SuperReality-dev-bastion"
         createdBy = "MaureenBarasa"
@@ -293,7 +205,7 @@ resource "aws_rds_cluster" "SuperReality-aurora-rds-cluster" {
   cluster_identifier      = "superreality-aurora-rds-dev-cluster"
   engine                  = "aurora-mysql"
   engine_version          = "5.7"
-  availability_zones      = ["us-west-1b", "us-west-1c"]
+  availability_zones      = ["eu-west-1a", "eu-west-1b"]
   database_name           = "mydb"
   master_username         = "SuperRealityengine"
   master_password         = "var.db_root_password"
@@ -328,33 +240,6 @@ resource "aws_rds_cluster_instance" "SuperReality-aurora-db-instance1" {
   db_parameter_group_name = "${aws_db_parameter_group.SuperReality-rds-aurora-parametergroup.id}"
 }
 
-module "db_provisioner" {
-  source  = "aleks-fofanov/rds-lambda-db-provisioner/aws"
-  depends_on = [
-    aws_rds_cluster_instance.SuperReality-aurora-db-instance1,
-  ]
-  version = "~> 2.0"
-    
-    #source    = "git::https://github.com/aleks-fofanov/terraform-aws-rds-lambda-db-provisioner.git?ref=master"
-  name      = "stack"
-  namespace = "cp"
-  stage     = "prod"
-
-  db_instance_id                = "aurora-dev-cluster-mysql-instance1"
-  db_instance_security_group_id = "${aws_security_group.SuperReality-rds-aurora-securitygroup.id}"
-  db_master_password            = "var.db_root_password"
-
-  db_name          = "SRDB"
-  db_user          = "SRDB"
-  db_user_password = "var.db_user_password"
-
-  vpc_config = {
-      vpc_id             = "${module.VPC.VPC_vpc_id}"
-      subnet_ids         = [module.VPC.VPC_private_subnet3_id,module.VPC.VPC_private_subnet4_id]
-      security_group_ids = [aws_security_group.SuperReality-rds-aurora-securitygroup.id]
-    }
-  }
-
 #EKS
 #eks cluster
 provider "kubernetes" {
@@ -367,7 +252,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = local.cluster_name
   cluster_version = "1.20"
-  subnets         = [module.VPC.VPC_private_subnet1_id,module.VPC.VPC_private_subnet2_id]
+  subnets         = [module.VPC.VPC_private_subnet1_id,module.VPC.VPC_private_subnet2_id,module.VPC.VPC_public_subnet1_id,module.VPC.VPC_public_subnet2_id]
 
   tags = {
     Environment = "UAT"
@@ -378,12 +263,17 @@ module "eks" {
 
   vpc_id = "${module.VPC.VPC_vpc_id}"
 }
+
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
+}
+
+data "aws_security_group" "cluster" {
+      id = module.eks.cluster_primary_security_group_id
 }
 
 resource "aws_iam_role" "eks_nodes" {
@@ -420,6 +310,45 @@ resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
   role       = aws_iam_role.eks_nodes.name
 }
 
+resource "aws_launch_template" "gameservers-lt" {
+  name = "gameservers-lt"
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size = 40
+    }
+  }
+  instance_type = "t3.small"
+}
+
+resource "aws_launch_template" "mainnode-lt" {
+  name = "mainnode-lt"
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size = 20
+    }
+  }
+  instance_type = "t3.medium"
+}
+
+resource "aws_launch_template" "redis-lt" {
+  name = "redis-lt"
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size = 10
+    }
+  }
+  instance_type = "t3.small"
+}
+
 resource "aws_eks_node_group" "SuperReality-eks-nodes" {
   cluster_name    = local.cluster_name
   node_group_name = "SuperReality-dev-eks-nodes"
@@ -431,6 +360,10 @@ resource "aws_eks_node_group" "SuperReality-eks-nodes" {
     max_size     = 4
     min_size     = 4
   }
+  launch_template {
+   name = aws_launch_template.mainnode-lt.name
+   version = aws_launch_template.mainnode-lt.latest_version
+  }
   tags = {
      Name = "SuperReality-dev-eks-nodes"
      createdBy = "MaureenBarasa"
@@ -440,6 +373,7 @@ resource "aws_eks_node_group" "SuperReality-eks-nodes" {
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [
+    aws_launch_template.mainnode-lt,
     module.eks,
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
@@ -451,12 +385,16 @@ resource "aws_eks_node_group" "SuperReality-eks-gameservers-nodes" {
   cluster_name    = local.cluster_name
   node_group_name = "SuperReality-dev-eks-gameservers-nodes"
   node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = [module.VPC.VPC_private_subnet1_id,module.VPC.VPC_private_subnet2_id]
+  subnet_ids      = [module.VPC.VPC_public_subnet1_id,module.VPC.VPC_public_subnet2_id]
 
   scaling_config {
     desired_size = 2
     max_size     = 2
     min_size     = 2
+  }
+  launch_template {
+   name = aws_launch_template.gameservers-lt.name
+   version = aws_launch_template.gameservers-lt.latest_version
   }
   tags = {
      Name = "SuperReality-dev-eks-gameservers-nodes"
@@ -467,6 +405,7 @@ resource "aws_eks_node_group" "SuperReality-eks-gameservers-nodes" {
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [
+    aws_launch_template.gameservers-lt,
     module.eks,
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
@@ -474,5 +413,60 @@ resource "aws_eks_node_group" "SuperReality-eks-gameservers-nodes" {
   ]
 }
 
+resource "aws_eks_node_group" "SuperReality-eks-redis-nodes" {
+  cluster_name    = local.cluster_name
+  node_group_name = "SuperReality-dev-eks-redis-nodes"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = [module.VPC.VPC_private_subnet1_id,module.VPC.VPC_private_subnet2_id]
 
+  scaling_config {
+    desired_size = 1
+    max_size     = 1
+    min_size     = 1
+  }
+  launch_template {
+   name = aws_launch_template.redis-lt.name
+   version = aws_launch_template.redis-lt.latest_version
+  }
+  tags = {
+     Name = "SuperReality-dev-eks-gameservers-nodes"
+     createdBy = "MaureenBarasa"
+     Project = "SuperReality"
+     environment = "UAT"
+   }
+  # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
+  # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
+  depends_on = [
+    aws_launch_template.redis-lt,
+    module.eks,
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+  ]
+}
+
+# Import Ingress rules to SG1 created by EKS    
+# SG Rule which you would like to add
+resource "aws_security_group_rule" "rule1" {
+    depends_on        = [module.eks]
+    type              = "ingress"
+    from_port         = 7000
+    to_port           = 8000
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
+    
+    security_group_id = module.eks.cluster_primary_security_group_id
+}
+    
+# SG Rule which you would like to add
+resource "aws_security_group_rule" "rule2" {
+    depends_on        = [module.eks]
+    type              = "ingress"
+    from_port         = 7000
+    to_port           = 8000
+    protocol          = "udp"
+    cidr_blocks       = ["0.0.0.0/0"]
+    
+    security_group_id = module.eks.cluster_primary_security_group_id
+}
 
