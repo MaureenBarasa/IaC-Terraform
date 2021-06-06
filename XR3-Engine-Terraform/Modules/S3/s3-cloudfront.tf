@@ -66,7 +66,7 @@ resource "aws_cloudfront_distribution" "SuperReality-dev-cf" {
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods   = ["GET", "HEAD"]
+    cached_methods   = ["HEAD", "GET","OPTIONS"]
     target_origin_id = "${local.s3_origin_id}"
 
     forwarded_values {
