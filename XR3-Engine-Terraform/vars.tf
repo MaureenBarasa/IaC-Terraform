@@ -20,10 +20,3 @@ variable "db_root_password" {
   default = "************"
   sensitive = true
 }
-
-variable "db_user_password" {
-  description = "the db user password"
-  type = "string"
-  default = "**************"
-  sensitive = true
-}
