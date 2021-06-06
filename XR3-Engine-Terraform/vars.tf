@@ -9,6 +9,7 @@ variable "AWS_SECRET_KEY" {
 variable "AWS_REGION" {
   default = "Your AWS Account Region"
 }
+
 variable "db_root_password" {
   description = "the db root password"
   type = "string"
