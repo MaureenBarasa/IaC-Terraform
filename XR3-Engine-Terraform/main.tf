@@ -37,9 +37,21 @@ provider "aws" {
   access_key = var.AWS_ACCESS_KEY
   secret_key = var.AWS_SECRET_KEY
   region =  var.AWS_REGION
+  
+}
+
+provider "aws" {
+  alias  = "us-east-1"
+  region = "us-east-1"
+}
+
+module "s3bucket" {
+  source = "./XR3-Engine-Terraform/Modules/S3"
+  #provider = "aws.us-east-1"
+  bucket_region = "us-east-1"
+  bucket_name = "dev-superreality"
 }
 
 module "SuperReality-Env" {
   source  = "./XR3-Engine-Terraform/Modules/SUPERREALITY"
 }
-
